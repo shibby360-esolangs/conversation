@@ -1,0 +1,31 @@
+let screen be GUI`s create_window((280, 280))
+GUI`s set_title('Circles')
+let circle_X be 140
+let circle_Y be 140
+let norun be 0
+until False {
+	screen`s fill((0, 0, 0))
+	GUI`s draw`s circle(screen, (0, 0, 255), (circle_X, circle_Y), 50)
+	GUI`s window`s update()
+	move event through GUI`s event`s get() {
+		if event`s type == KEYDOWN {
+			if event`s key == K_RIGHT {
+				circle_X += 10
+			}
+			if event`s key == K_LEFT {
+				circle_X -= 10
+			}
+			if event`s key == K_UP {
+				circle_Y -= 10
+			}
+			if event`s key == K_DOWN {
+				circle_Y += 10
+			}
+		}
+		if event`s type == QUIT {
+			GUI`s quit()
+			let norun be 1
+			bye()
+		}
+	}
+}

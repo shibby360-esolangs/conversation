@@ -1,0 +1,14 @@
+commands repeatedinput(timess, input) {
+  let end be []
+  repeat timess times { 
+    let newel be ask(input)
+    end`s append(newel)
+  }
+  return end
+}
+let inputs be repeatedinput(5, 'whats your name?: ')
+let a be 1
+move inputt through inputs {
+  say('Hello ' + inputt * a + '!')
+  a++
+}

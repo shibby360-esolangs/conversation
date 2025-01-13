@@ -1,0 +1,6 @@
+let inp be ask('string to slow print: ')
+let pr be ''
+move char through inp {
+  pr += char
+  say(pr)
+}
