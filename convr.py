@@ -1,12 +1,18 @@
-#Start me off
-lines = str(__import__('sys').argv[1])
+#file
+f = open('examples/repeatedinputs.talk')#put antoehr file here
+lines = f.readlines()
+if not f.name.endswith('.talk'):
+  print('Cannot interpret file.')
+  exit()
 
-#Lets make this thing!
+#actual code
 import os
 import random as r
 import pygame as GUI
 from pygame.locals import *
 import time
+from replit import db
+import re
 GUI.init()
 os.system('clear')
 def __():
@@ -109,7 +115,7 @@ setattr(GUI, 'sounds', GUI.mixer)
 del GUI.mixer
 yes = True
 no = False
-idk = None
+neither = None
 opers = {
   '==':'!=',
   '>=':'<',
@@ -141,7 +147,7 @@ if 'nevermind\n' in lines or 'nevermind' in lines:
   if lines[len(lines)-1] == 'nevermind\n' or lines[len(lines)-1] == 'nevermind':
     lines = []
   else:
-    readit = lines.join('\n')
+    readit = f.read()
     for i in range(len(lines)):
       lines[i] = lines[i].strip()
     readit = readit.split('nevermind')
@@ -185,22 +191,28 @@ os.environ['TZ'] = 'US/Pacific'
 time.tzset()
 class timer:
   class ctime:
-    def what_year():
-      return time.ctime(time.time())[-4:]
-    def what_curr_seconds():
-      return time.ctime(time.time())[17:19]
-    def what_curr_hour():
-      return time.ctime(time.time())[15:16]
-    def what_curr_mins():
-      return time.ctime(time.time())[14:16]
-    def what_day_num():
-      return time.ctime(time.time())[9:10]
-    def what_month():
-      return time.ctime(time.time())[5:9]
-    def what_day():
-      return time.ctime(time.time())[:2]
-  class others:
-    wait = time.sleep
+    def what_year(timeat=time.time()):
+      return time.ctime(timeat)[-4:]
+    def what_seconds(timeat=time.time()):
+      return time.ctime(timeat)[17:19]
+    def what_hour(timeat=time.time()):
+      return time.ctime(timeat)[15:16]
+    def what_mins(timeat=time.time()):
+      return time.ctime(timeat)[14:16]
+    def what_day_num(timeat=time.time()):
+      return time.ctime(timeat)[9:10]
+    def what_month(timeat=time.time()):
+      return time.ctime(timeat)[5:9]
+    def what_day(timeat=time.time()):
+      return time.ctime(timeat)[:2]
+  wait = time.sleep
+  class logging:
+    loggedtime = 0
+    def logtime():
+      global loggedtime
+      loggedtime = time.time()
+    def timepassedsincelog():
+      return time.time() - loggedtime
 #Functions
 def say(str='', end='\n'):
   print(str, end=end)
@@ -235,28 +247,31 @@ def what_type(item):
     return decimal
   else:
     return type(item)
+def think(**thoughts):
+  if 'key' in thoughts:
+    db[thoughts['key']] = thoughts['value']
+  else:
+    thoughtees = db['thoughtStorage']
+    thoughtees.append(thoughts['thoughts']['value'])
+    db['thoughtStorage'] = thoughtees
 #Keywords
 for i in range(0, len(lines)):
-  if 'whisp' in lines[i]:
-    lines[i] = lines[i].replace('whisp ', '#')
+  if '~~' in lines[i]:
+    lines[i] = lines[i].replace('~~ ', '#')
   if ' be ' in lines[i]:
     lines[i] = lines[i].replace(' be ', ' = ')
   if 'let ' in lines[i]:
     lines[i] = lines[i].replace('let ', '')
   if 'commands ' in lines[i]:
     lines[i] = lines[i].replace('commands ', 'def ')
-  if '{' in lines[i] and ('def' in lines[i] or 'move' in lines[i] or 'until' in lines[i] or 'if' in lines[i] or 'else' in lines[i] or 'topic' in lines[i]):
+  if '{' in lines[i] and ('def' in lines[i] or 'move' in lines[i] or 'until' in lines[i] or 'if' in lines[i] or 'else' in lines[i] or 'topic' in lines[i] or 'repeat' in lines[i]):
     lines[i] = lines[i].replace('{', ':')
   if 'topic ' in lines[i]:
     lines[i] = lines[i].replace('topic', 'class')
   if 'until ' in lines[i]:
-    lines[i] = lines[i].replace('until', 'while')
-    lines_i = lines[i].split()
-    for j in lines_i:
-      if j in opers:
-        lines[i] = lines[i].replace(j, opers[j])
-      else:
-        pass
+    lines[i] = lines[i].replace('until', 'while not')
+    condition = lines[i].strip()[10:-2]
+    lines[i] = lines[i].replace(condition, f'not({condition})')
   if 'move ' in lines[i]:
     lines[i] = lines[i].replace('move', 'for')
     if ' through ' in lines[i]:
@@ -269,18 +284,27 @@ for i in range(0, len(lines)):
     lines[i] = '\n'
   if '`s ' in lines[i]:
     lines[i] = lines[i].replace('`s ', '.')
+  if 'giveback ' in lines[i]:
+    lines[i] = lines[i].replace('giveback', 'return')
+  if 'repeat ' in lines[i]:
+    countexpression = lines[i].strip()[7:-8]
+    lines[i] = lines[i].replace(f'repeat {countexpression} times', f'for i in range({countexpression})')
+  '''matchesforvars = re.finditer(r'\${(.+)}', lines[i], flags=re.M)
+  for match in matchesforvars:
+    lines[i] = lines[i].replace('${' + match.groups()[0] + '}', varslist[match.groups()[0]])''' # unneeded
 
-
-#And finish it
+#parse through
 allread = ''.join(lines)
 try:
   exec(allread)
 except SyntaxError as s:
   if 'EOF' in str(s):
-    raise ConversationUnexpectedlyEndedError('Conversation Abruptly Ended')
+    raise ConversationUnexpectedlyEndedError('Someone\'s social anxiety kicked in and they abruptly quit the conversation')
   elif 'EOL' in str(s):
-    raise UnexpectedConversationLineEndedError('Conversation Line Unexpectedly Ended')
+    raise UnexpectedConversationLineEndedError('Someone got interrupted and a line ended without finishing')
   else:
     raise ConversationError(str(s))
 except NameError as n:
-  raise UnknownNameError(str(n)[5:-15] + ' was never defined')
+  raise UnknownNameError(f'What\'s a "{str(n)[5:-15]}"')
+def debugr():
+  print(allread)
